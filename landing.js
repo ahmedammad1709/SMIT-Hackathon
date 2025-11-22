@@ -50,5 +50,6 @@ if (cta) {
     const count = Number(localStorage.getItem('ctaClicks') || 0) + 1;
     localStorage.setItem('ctaClicks', String(count));
     localStorage.setItem('visitedLanding', 'true');
+    setTimeout(() => { window.location.href = 'signup.html'; }, 500);
   });
 }

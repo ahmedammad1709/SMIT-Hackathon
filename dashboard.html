@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Pulse</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+  <header class="dash-nav">
+    <div class="nav-left">
+      <button class="icon-btn" id="menuBtn" aria-label="Toggle sidebar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+      <a class="logo" href="index.html">PULSE</a>
+    </div>
+    <div class="nav-right">
+      <div class="greet">Hi, <span id="navUser">User</span></div>
+      <button class="btn ghost" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div class="dash-wrap">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-inner">
+        <button class="side-item active" data-view="overview">
+          <span class="ico">📊</span>
+          <span>Overview</span>
+        </button>
+        <button class="side-item" data-view="blogs">
+          <span class="ico">📝</span>
+          <span>Your Blogs</span>
+        </button>
+        <button class="side-item" data-view="create">
+          <span class="ico">➕</span>
+          <span>Create Post</span>
+        </button>
+        <button class="side-item" data-view="settings">
+          <span class="ico">⚙️</span>
+          <span>Settings</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main" id="main">
+      <section class="view active" id="view-overview">
+        <div class="grid stats">
+          <div class="card stat">
+            <div class="stat-label">Total Blogs</div>
+            <div class="stat-value" id="totalBlogs">0</div>
+          </div>
+          <div class="card stat">
+            <div class="stat-label">Total Likes</div>
+            <div class="stat-value" id="totalLikes">0</div>
+          </div>
+          <div class="card stat">
+            <div class="stat-label">Total Comments</div>
+            <div class="stat-value" id="totalComments">0</div>
+          </div>
+        </div>
+        <div class="card chart">
+          <div class="chart-head">
+            <div class="chart-title">Activity</div>
+            <div class="chart-sub">Last 7 days</div>
+          </div>
+          <div class="bars" id="bars"></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-blogs">
+        <div class="section-head">
+          <h2>Your Blogs</h2>
+          <div class="sub">Manage your posts</div>
+        </div>
+        <div id="blogsList" class="grid list"></div>
+      </section>
+
+      <section class="view" id="view-create">
+        <div class="card form-card">
+          <h2>Create Post</h2>
+          <form class="form" id="createForm">
+            <div class="field">
+              <input id="postTitle" type="text" required placeholder=" " />
+              <label for="postTitle">Blog Name</label>
+            </div>
+            <div class="field">
+              <select id="postCategory" required>
+                <option value="" disabled selected>Pick a category</option>
+                <option>Technology</option>
+                <option>Science</option>
+                <option>Movies</option>
+                <option>Sports</option>
+                <option>Lifestyle</option>
+                <option>Travel</option>
+                <option>Business</option>
+                <option>Gaming</option>
+                <option>Education</option>
+                <option>Art</option>
+                <option>Music</option>
+              </select>
+              <label for="postCategory">Category</label>
+            </div>
+            <div class="field">
+              <input id="postImage" type="url" placeholder=" " />
+              <label for="postImage">Image URL</label>
+            </div>
+            <div class="field">
+              <textarea id="postDesc" rows="6" placeholder=" "></textarea>
+              <label for="postDesc">Description</label>
+            </div>
+            <button class="btn primary" id="createBtn" type="submit">Create Post</button>
+          </form>
+        </div>
+        <div class="card preview" id="postPreview">
+          <div class="preview-image" id="previewImage"></div>
+          <div class="preview-body">
+            <div class="preview-meta">
+              <span class="pill" id="previewCategory">Category</span>
+            </div>
+            <h3 id="previewTitle">Blog title</h3>
+            <p id="previewDesc">Description will appear here as you type.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="grid settings">
+          <div class="card profile">
+            <div class="avatar" id="avatarPreview"></div>
+            <div class="profile-name" id="profileName">User</div>
+          </div>
+          <div class="card form-card">
+            <h2>Profile</h2>
+            <form class="form" id="settingsForm">
+              <div class="field">
+                <input id="setUsername" type="text" placeholder=" " />
+                <label for="setUsername">Username</label>
+              </div>
+              <div class="field">
+                <input id="setFullName" type="text" placeholder=" " />
+                <label for="setFullName">Full Name</label>
+              </div>
+              <div class="field">
+                <input id="setEmail" type="email" placeholder=" " />
+                <label for="setEmail">Email</label>
+              </div>
+              <div class="field">
+                <input id="setAvatar" type="url" placeholder=" " />
+                <label for="setAvatar">Profile Picture URL</label>
+              </div>
+              <div class="field">
+                <textarea id="setBio" rows="5" placeholder=" "></textarea>
+                <label for="setBio">Bio</label>
+              </div>
+              <button class="btn primary" id="saveBtn" type="button">Save Changes</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="dashToast" class="toast"></div>
+
+  <script src="dashboard.js" defer></script>
+</body>
+</html>
