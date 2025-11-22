@@ -100,3 +100,17 @@ const capitalize = s => (s || '').charAt(0).toUpperCase() + (s || '').slice(1);
 
 handleSignup();
 handleLogin();
+
+document.querySelectorAll('.field input, .field textarea, .field select').forEach(el => {
+  const setFilled = () => {
+    const wrap = el.closest('.field');
+    const val = el.tagName === 'SELECT' ? el.value : (el.value || '').trim();
+    if (wrap) { if (val) wrap.classList.add('filled'); else wrap.classList.remove('filled'); }
+  };
+  setFilled();
+  ['input','change','blur'].forEach(ev => el.addEventListener(ev, setFilled));
+});
+
+const applyTheme = t => { document.documentElement.setAttribute('data-theme', t); const btn = qs('#themeToggle'); if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙'; localStorage.setItem('theme', t); };
+const initTheme = () => { const t = localStorage.getItem('theme') || 'dark'; applyTheme(t); const btn = qs('#themeToggle'); if (btn) btn.addEventListener('click', () => { const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; applyTheme(next); }); };
+initTheme();

@@ -4,6 +4,7 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
 const header = document.getElementById('navbar');
 const navLinks = document.querySelectorAll('.nav-link');
 const cta = document.getElementById('ctaBtn');
+const themeBtn = document.getElementById('themeToggle');
 
 const handleScroll = () => {
   const scrolled = window.scrollY > 10;
@@ -53,3 +54,8 @@ if (cta) {
     setTimeout(() => { window.location.href = 'signup.html'; }, 500);
   });
 }
+
+const applyTheme = t => { document.documentElement.setAttribute('data-theme', t); if (themeBtn) themeBtn.textContent = t === 'light' ? '☀️' : '🌙'; localStorage.setItem('theme', t); };
+const initTheme = () => { const t = localStorage.getItem('theme') || 'dark'; applyTheme(t); };
+initTheme();
+if (themeBtn) themeBtn.addEventListener('click', () => { const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; applyTheme(t); });
