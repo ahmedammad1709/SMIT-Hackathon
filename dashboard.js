@@ -39,7 +39,7 @@ function computeStats() {
   const all = getBlogs();
   const my = cu && cu.email ? all.filter(b => String(b.userEmail).toLowerCase() === String(cu.email).toLowerCase()) : [];
   const blogsCount = my.length;
-  const likes = my.reduce((acc, b) => acc + (b.likes || 0), 0);
+  const likes = my.reduce((acc, b) => acc + (Array.isArray(b.likedBy) ? b.likedBy.length : (b.likes || 0)), 0);
   const comments = my.reduce((acc, b) => acc + (Array.isArray(b.comments) ? b.comments.length : 0), 0);
   if (sb) sb.textContent = String(blogsCount);
   if (sl) sl.textContent = String(likes);
@@ -105,6 +105,7 @@ function updateChart() {
 const blogsList = qs('#blogsList');
 const getBlogs = () => { try { return JSON.parse(localStorage.getItem('blogs') || '[]'); } catch { return []; } };
 const setBlogs = (arr) => { localStorage.setItem('blogs', JSON.stringify(arr)); };
+function syncLikesFromLikedBy() { const arr = getBlogs(); const upd = arr.map(b => { const lb = Array.isArray(b.likedBy) ? b.likedBy : []; const norm = Array.from(new Set(lb.map(e => String(e).toLowerCase()))); return { ...b, likedBy: norm, likes: norm.length }; }); setBlogs(upd); }
 let editingId = null;
 const renderBlogs = () => {
   if (!blogsList) return;
@@ -120,7 +121,7 @@ const renderBlogs = () => {
       <div>
         <div><strong>${b.name}</strong></div>
         <div class="list-meta list-meta-row"><span class="pill">${b.category}</span><span class="meta-item">${formatDT(b.createdAt)}</span></div>
-        <div class="list-meta list-meta-row"><span class="meta-item">Likes: ${b.likes || 0}</span><span class="meta-item">Comments: ${Array.isArray(b.comments) ? b.comments.length : 0}</span></div>
+        <div class="list-meta list-meta-row"><span class="meta-item">Likes: ${Array.isArray(b.likedBy) ? b.likedBy.length : (b.likes || 0)}</span><span class="meta-item">Comments: ${Array.isArray(b.comments) ? b.comments.length : 0}</span></div>
       </div>
       <div class="actions">
         <button class="btn small edit" data-id="${b.id}">Edit</button>
@@ -157,6 +158,7 @@ const renderBlogs = () => {
     updateChart();
   }));
 };
+syncLikesFromLikedBy();
 renderBlogs();
 
 const blogName = qs('#blogName');

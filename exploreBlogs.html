@@ -194,6 +194,7 @@
     function setCurrentUser(cu) { localStorage.setItem('currentUser', JSON.stringify(cu)); }
     function getBlogs() { try { return JSON.parse(localStorage.getItem('blogs') || '[]'); } catch { return []; } }
     function setBlogs(arr) { localStorage.setItem('blogs', JSON.stringify(arr)); }
+    function syncLikesFromLikedBy() { const arr = getBlogs(); const upd = arr.map(b => { const lb = Array.isArray(b.likedBy) ? b.likedBy : []; const norm = Array.from(new Set(lb.map(e => String(e).toLowerCase()))); return { ...b, likedBy: norm, likes: norm.length }; }); setBlogs(upd); }
 
     const navUserExplore = qs('#navUserExplore');
     const cu = getCurrentUser();
@@ -212,6 +213,7 @@
 
     const exploreList = qs('#exploreList');
     const renderFeed = (q = '', cat = '', sortKey = 'latest') => {
+      syncLikesFromLikedBy();
       const all = getBlogs();
       const term = (q || '').toLowerCase();
       const catTerm = (cat || '').toLowerCase();
@@ -233,7 +235,8 @@
       } else if (sortKey === 'oldest') {
         list = list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
       } else if (sortKey === 'likes') {
-        list = list.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+        const lk = x => Array.isArray(x.likedBy) ? x.likedBy.length : (x.likes || 0);
+        list = list.sort((a, b) => lk(b) - lk(a));
       } else if (sortKey === 'comments') {
         const cl = x => Array.isArray(x.comments) ? x.comments.length : 0;
         list = list.sort((a, b) => cl(b) - cl(a));
@@ -257,7 +260,7 @@
           <div class="preview-image">${b.image && /^https?:\/\//i.test(b.image) ? '<img src="' + b.image + '" alt="Blog image" loading="lazy" />' : ''}</div>
           <p style="color:var(--muted);">${b.description}</p>
           <div class="actions" style="justify-content:flex-start;">
-            <button class="btn small like-btn${liked ? ' liked' : ''}" data-id="${b.id}" data-liked="${liked ? 'true' : 'false'}">${liked ? '❤️ Liked' : '❤️ Like'} (<span class="like-count" data-id="${b.id}">${b.likes || 0}</span>)</button>
+            <button class="btn small like-btn${liked ? ' liked' : ''}" data-id="${b.id}" data-liked="${liked ? 'true' : 'false'}">${liked ? '❤️ Liked' : '❤️ Like'} (<span class="like-count" data-id="${b.id}">${Array.isArray(b.likedBy) ? b.likedBy.length : (b.likes || 0)}</span>)</button>
             ${Array.isArray(b.comments) && b.comments.length ? `<button class="btn small ghost toggle-comments-btn" data-id="${b.id}" data-state="hidden" data-count="${Array.isArray(b.comments) ? b.comments.length : 0}">Show Comments (${Array.isArray(b.comments) ? b.comments.length : 0})</button>` : ''}
           </div>
           <div class="comments" style="display:grid; gap:8px;">
@@ -283,28 +286,27 @@
         const idx = arr.findIndex(x => String(x.id) === String(id));
         if (idx < 0) return;
         const me = String(cu.email).toLowerCase();
-        const likedBy = Array.isArray(arr[idx].likedBy) ? arr[idx].likedBy : [];
-        const already = likedBy.some(x => String(x).toLowerCase() === me);
-        let likes = arr[idx].likes || 0;
+        const raw = Array.isArray(arr[idx].likedBy) ? arr[idx].likedBy : [];
+        let likedBy = Array.from(new Set(raw.map(x => String(x).toLowerCase())));
+        const already = likedBy.includes(me);
         const btn = e.currentTarget;
         if (already) {
-          arr[idx].likedBy = likedBy.filter(x => String(x).toLowerCase() !== me);
-          likes = Math.max(0, likes - 1);
-          arr[idx].likes = likes;
+          likedBy = likedBy.filter(x => x !== me);
+          arr[idx].likedBy = likedBy;
+          arr[idx].likes = likedBy.length;
           setBlogs(arr);
           const lc = qs(`.like-count[data-id="${id}"]`);
-          if (lc) lc.textContent = String(likes);
+          if (lc) lc.textContent = String(likedBy.length);
           btn.setAttribute('data-liked', 'false');
           btn.classList.remove('liked');
           btn.firstChild && (btn.firstChild.textContent = '❤️ Like ');
         } else {
-          likedBy.push(cu.email);
+          likedBy.push(me);
           arr[idx].likedBy = likedBy;
-          likes = likes + 1;
-          arr[idx].likes = likes;
+          arr[idx].likes = likedBy.length;
           setBlogs(arr);
           const lc = qs(`.like-count[data-id="${id}"]`);
-          if (lc) lc.textContent = String(likes);
+          if (lc) lc.textContent = String(likedBy.length);
           btn.setAttribute('data-liked', 'true');
           btn.classList.add('liked');
           btn.firstChild && (btn.firstChild.textContent = '❤️ Liked ');
