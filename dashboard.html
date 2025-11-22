@@ -14,19 +14,20 @@
       <button class="icon-btn menu-btn" id="menuToggle" aria-label="Toggle sidebar">☰</button>
     </div>
     <div class="nav-right">
+      <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
       <div class="greet">Hi, <span id="navUser">User</span></div>
-      <a class="btn ghost" href="login.html">Logout</a>
+      <a class="btn logout" id="logoutBtn" href="login.html">Logout</a>
     </div>
   </header>
 
   <div class="dash-wrap">
     <aside class="sidebar">
       <div class="side-inner">
-        <button class="side-item active" data-view="overview"><span class="ico">📊</span> Overview</button>
-        <button class="side-item" data-view="blogs"><span class="ico">📝</span> Your Blogs</button>
-        <button class="side-item" data-view="explore"><span class="ico">🔎</span> Explore Blogs</button>
-        <button class="side-item" data-view="create"><span class="ico">➕</span> Create Post</button>
-        <button class="side-item" data-view="settings"><span class="ico">⚙️</span> Settings</button>
+        <button class="side-item active" data-view="overview"><span class="ico"></span> Overview</button>
+        <button class="side-item" data-view="blogs"><span class="ico"></span> Your Blogs</button>
+        <button class="side-item" data-view="explore"><span class="ico"></span> Explore Blogs</button>
+        <button class="side-item" data-view="create"><span class="ico"></span> Create Post</button>
+        <button class="side-item" data-view="settings"><span class="ico"></span> Settings</button>
       </div>
     </aside>
 
@@ -85,7 +86,7 @@
               </div>
               <div class="field">
                 <select id="category">
-                  <option value="">Select category</option>
+                  <option value=""> </option>
                   <option>Technology</option>
                   <option>Science</option>
                   <option>Movies</option>

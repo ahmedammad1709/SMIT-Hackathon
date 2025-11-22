@@ -17,6 +17,20 @@ function getUsers() { try { return JSON.parse(localStorage.getItem('users') || '
 function setUsersLS(users) { localStorage.setItem('users', JSON.stringify(users)); }
 function getCurrentUser() { try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch { return null; } }
 function setCurrentUser(cu) { localStorage.setItem('currentUser', JSON.stringify(cu)); }
+function computeStats() {
+  const sb = qs('#statBlogs');
+  const sl = qs('#statLikes');
+  const sc = qs('#statComments');
+  const cu = getCurrentUser();
+  const all = getBlogs();
+  const my = cu && cu.email ? all.filter(b => String(b.userEmail).toLowerCase() === String(cu.email).toLowerCase()) : [];
+  const blogsCount = my.length;
+  const likes = my.reduce((acc, b) => acc + (b.likes || 0), 0);
+  const comments = my.reduce((acc, b) => acc + (Array.isArray(b.comments) ? b.comments.length : 0), 0);
+  if (sb) sb.textContent = String(blogsCount);
+  if (sl) sl.textContent = String(likes);
+  if (sc) sc.textContent = String(comments);
+}
 
 const setFilled = el => { const f = el && el.closest('.field'); if (!f) return; const v = (el.tagName === 'SELECT') ? el.value : (el.value || '').trim(); if (v) f.classList.add('filled'); else f.classList.remove('filled'); };
 qsa('.field input, .field textarea, .field select').forEach(el => { setFilled(el); ['input','change','blur'].forEach(ev => el.addEventListener(ev, () => setFilled(el))); });
@@ -31,6 +45,7 @@ sides.forEach(btn => {
     if (key === 'explore') { window.location.href = 'exploreBlogs.html'; return; }
     if (v) v.classList.add('active');
     if (key === 'blogs') renderBlogs();
+    if (key === 'overview') { computeStats(); updateChart(); }
     if (document.body.clientWidth <= 992) {
       const sidebar = qs('.sidebar');
       if (sidebar) sidebar.classList.remove('open');
@@ -38,9 +53,36 @@ sides.forEach(btn => {
   });
 });
 
-const bars = qsa('.bar');
-const dummy = [16, 28, 12, 30, 22, 40, 26];
-bars.forEach((bar, i) => { const h = dummy[i % dummy.length]; requestAnimationFrame(() => { bar.style.height = h * 3 + 'px'; }); });
+const barsWrap = qs('.bars');
+const labelsWrap = qs('.bar-labels');
+function updateChart() {
+  const cu = getCurrentUser();
+  const all = getBlogs();
+  const my = cu && cu.email ? all.filter(b => String(b.userEmail).toLowerCase() === String(cu.email).toLowerCase()) : [];
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate() - (6 - i));
+    return d;
+  });
+  const counts = days.map(d => my.filter(b => {
+    const t = new Date(b.createdAt || 0); t.setHours(0,0,0,0);
+    return t.getTime() === d.getTime();
+  }).length);
+  const labels = days.map(d => d.toLocaleDateString(undefined, { weekday: 'short' }));
+  if (labelsWrap) labelsWrap.innerHTML = labels.map(l => `<div>${l}</div>`).join('');
+  if (!barsWrap) return;
+  const existing = qsa('.bar');
+  if (existing.length !== 7) barsWrap.innerHTML = Array.from({ length: 7 }, () => '<div class="bar" style="height:0"></div>').join('');
+  const barsNow = qsa('.bar');
+  const max = Math.max(1, ...counts);
+  const maxH = 200;
+  counts.forEach((c, i) => {
+    const h = Math.max(8, Math.round((c / max) * maxH));
+    const bar = barsNow[i];
+    if (bar) requestAnimationFrame(() => { bar.style.height = h + 'px'; });
+  });
+}
 
 const blogsList = qs('#blogsList');
 const getBlogs = () => { try { return JSON.parse(localStorage.getItem('blogs') || '[]'); } catch { return []; } };
@@ -92,6 +134,8 @@ const renderBlogs = () => {
     setBlogs(arr);
     renderBlogs();
     showToast('Deleted');
+    computeStats();
+    updateChart();
   }));
 };
 renderBlogs();
@@ -156,10 +200,12 @@ if (createBtn) {
         sides.forEach(b => b.classList.remove('active'));
         const tab = sides.find(b => b.dataset.view === 'blogs'); if (tab) tab.classList.add('active');
         renderBlogs();
+        computeStats();
+        updateChart();
         return;
       }
     }
-    const newBlog = { id: Date.now(), userEmail: cu.email, name, category: cat, image: img, description: desc, likes: 0, comments: [], createdAt: Date.now() };
+    const newBlog = { id: Date.now(), userEmail: cu.email, name, category: cat, image: img, description: desc, likes: 0, likedBy: [], comments: [], createdAt: Date.now() };
     arr.push(newBlog);
     setBlogs(arr);
     if (blogName) blogName.value = '';
@@ -173,6 +219,8 @@ if (createBtn) {
     sides.forEach(b => b.classList.remove('active'));
     const tab = sides.find(b => b.dataset.view === 'blogs'); if (tab) tab.classList.add('active');
     renderBlogs();
+    computeStats();
+    updateChart();
   });
 }
 
@@ -222,6 +270,8 @@ const initCurrent = () => {
   [setUsername, setFullName, setEmail, setBio].forEach(el => el && el.dispatchEvent(new Event('input')));
 };
 initCurrent();
+computeStats();
+updateChart();
 
 if (saveSettingsBtn) {
   saveSettingsBtn.addEventListener('click', () => {
@@ -248,3 +298,7 @@ if (saveSettingsBtn) {
     showToast('Saved');
   });
 }
+
+const applyTheme = (t) => { document.documentElement.setAttribute('data-theme', t); const btn = qs('#themeToggle'); if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙'; localStorage.setItem('theme', t); };
+const initTheme = () => { const t = localStorage.getItem('theme') || 'dark'; applyTheme(t); const btn = qs('#themeToggle'); if (btn) btn.addEventListener('click', () => { const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; applyTheme(next); }); };
+initTheme();
