@@ -1,39 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Explore Blogs • BlogSyte</title>
+  <title>Explore Blogs - BlogSyte</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="dashboard.css" />
   <style>
-    #view-explore .grid.list { grid-template-columns: 1fr; max-width: 840px; margin: 0 auto; padding: 0 20px; }
-    .search-wrap { max-width: 840px; margin: 70px auto 16px; padding: 0 20px; }
-    .search-row { display:flex; gap:8px; }
-    .search-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: var(--text); font-size: 14px; }
-    #exploreCategory.search-input { width: 220px; }
-    #exploreSort.search-input { width: 200px; }
-    #view-explore .preview-image { min-height: 160px; height: 160px; }
-    @media (min-width: 640px) { #view-explore .preview-image { min-height: 200px; height: 200px; } }
-    @media (min-width: 992px) { #view-explore .preview-image { min-height: 280px; height: 280px; } }
-    @media (min-width: 1200px) { #view-explore .preview-image { min-height: 320px; height: 320px; } }
-    .nav-center { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
-    .nav-title { font-weight: 800; letter-spacing: -0.2px; }
-    .feed-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
-    .feed-left { display:flex; align-items:center; gap:12px; }
-    .feed-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.06); overflow: hidden; display:grid; place-items:center; font-weight:700; color: var(--text); }
-    .feed-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
-    [data-theme='light'] .feed-avatar { border-color: rgba(0,0,0,0.10); background: #f3f5fa; }
-    .feed-meta { display:flex; flex-direction:column; gap:4px; }
-    .feed-user { font-weight:700; font-size:14px; color: var(--text); }
+    #view-explore .grid.list {
+      grid-template-columns: 1fr;
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .search-wrap {
+      max-width: 840px;
+      margin: 70px auto 16px;
+      padding: 0 20px;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    #exploreCategory.search-input {
+      width: 220px;
+    }
+
+    #exploreSort.search-input {
+      width: 200px;
+    }
+
+    #view-explore .preview-image {
+      min-height: 160px;
+      height: 160px;
+    }
+
+    @media (min-width: 640px) {
+      #view-explore .preview-image {
+        min-height: 200px;
+        height: 200px;
+      }
+    }
+
+    @media (min-width: 992px) {
+      #view-explore .preview-image {
+        min-height: 280px;
+        height: 280px;
+      }
+    }
+
+    @media (min-width: 1200px) {
+      #view-explore .preview-image {
+        min-height: 320px;
+        height: 320px;
+      }
+    }
+
+    .nav-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .nav-title {
+      font-weight: 800;
+      letter-spacing: -0.2px;
+    }
+
+    .feed-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .feed-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feed-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .feed-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    [data-theme='light'] .feed-avatar {
+      border-color: rgba(0, 0, 0, 0.10);
+      background: #f3f5fa;
+    }
+
+    .feed-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .feed-user {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+    }
   </style>
 </head>
+
 <body>
   <header class="dash-nav">
     <div class="nav-left">
       <a href="#" class="logo">BlogSyte</a>
     </div>
-    <div class="nav-center"><div class="nav-title">Explore Blogs</div></div>
+    <div class="nav-center">
+      <div class="nav-title">Explore Blogs</div>
+    </div>
     <div class="nav-right">
       <div class="greet">Hi, <span id="navUserExplore">User</span></div>
       <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Toggle theme">🌙</button>
@@ -44,7 +152,8 @@
   <main class="main" style="margin-top:58px;">
     <div class="search-wrap">
       <div class="search-row">
-        <input type="text" id="exploreSearch" class="search-input" placeholder="Search blogs by title, category, author, description" />
+        <input type="text" id="exploreSearch" class="search-input"
+          placeholder="Search blogs by title, category, author, description" />
         <select id="exploreCategory" class="search-input">
           <option value="all">All</option>
           <option>Technology</option>
@@ -74,68 +183,69 @@
   <div class="toast" id="toast"></div>
 
   <script>
-  const qs = s => document.querySelector(s);
-  const qsa = s => Array.from(document.querySelectorAll(s));
-  const showToast = (msg) => { const t = qs('#toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1400); };
-  const applyTheme = t => { document.documentElement.setAttribute('data-theme', t); const btn = qs('#themeToggle'); if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙'; localStorage.setItem('theme', t); };
-  const initTheme = () => { const t = localStorage.getItem('theme') || 'dark'; applyTheme(t); const btn = qs('#themeToggle'); if (btn) btn.addEventListener('click', () => { const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; applyTheme(next); }); };
-  initTheme();
-  function getUsers() { try { return JSON.parse(localStorage.getItem('users') || '[]'); } catch { return []; } }
-  function getCurrentUser() { try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch { return null; } }
-  function setCurrentUser(cu) { localStorage.setItem('currentUser', JSON.stringify(cu)); }
-  function getBlogs() { try { return JSON.parse(localStorage.getItem('blogs') || '[]'); } catch { return []; } }
-  function setBlogs(arr) { localStorage.setItem('blogs', JSON.stringify(arr)); }
+    const qs = s => document.querySelector(s);
+    const qsa = s => Array.from(document.querySelectorAll(s));
+    const showToast = (msg) => { const t = qs('#toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1400); };
+    const applyTheme = t => { document.documentElement.setAttribute('data-theme', t); const btn = qs('#themeToggle'); if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙'; localStorage.setItem('theme', t); };
+    const initTheme = () => { const t = localStorage.getItem('theme') || 'dark'; applyTheme(t); const btn = qs('#themeToggle'); if (btn) btn.addEventListener('click', () => { const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; applyTheme(next); }); };
+    initTheme();
+    function getUsers() { try { return JSON.parse(localStorage.getItem('users') || '[]'); } catch { return []; } }
+    function getCurrentUser() { try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch { return null; } }
+    function setCurrentUser(cu) { localStorage.setItem('currentUser', JSON.stringify(cu)); }
+    function getBlogs() { try { return JSON.parse(localStorage.getItem('blogs') || '[]'); } catch { return []; } }
+    function setBlogs(arr) { localStorage.setItem('blogs', JSON.stringify(arr)); }
 
-  const navUserExplore = qs('#navUserExplore');
-  const cu = getCurrentUser();
-  if (!cu || !cu.email) { window.location.href = 'login.html'; }
-  if (navUserExplore) navUserExplore.textContent = (cu && (cu.username || cu.name)) || 'User';
+    const navUserExplore = qs('#navUserExplore');
+    const cu = getCurrentUser();
+    if (!cu || !cu.email) { window.location.href = 'login.html'; }
+    if (navUserExplore) navUserExplore.textContent = (cu && (cu.username || cu.name)) || 'User';
 
-  const nameByEmail = (email) => {
-    const users = getUsers();
-    const u = users.find(x => String(x.email).toLowerCase() === String(email).toLowerCase());
-    return (u && (u.username || u.name)) || email;
-  };
-  const formatDT = (ts) => {
-    if (!ts) return '';
-    try { return new Date(ts).toLocaleString(); } catch { return ''; }
-  };
+    const nameByEmail = (email) => {
+      const users = getUsers();
+      const u = users.find(x => String(x.email).toLowerCase() === String(email).toLowerCase());
+      return (u && (u.username || u.name)) || email;
+    };
+    const formatDT = (ts) => {
+      if (!ts) return '';
+      try { return new Date(ts).toLocaleString(); } catch { return ''; }
+    };
 
-  const exploreList = qs('#exploreList');
-  const renderFeed = (q = '', cat = '', sortKey = 'latest') => {
-    const all = getBlogs();
-    const term = (q || '').toLowerCase();
-    const catTerm = (cat || '').toLowerCase();
-    let list = all;
-    if (catTerm && catTerm !== 'all') {
-      list = list.filter(b => String(b.category||'').toLowerCase() === catTerm);
-    }
-    if (term) {
-      list = list.filter(b => {
-        const author = nameByEmail(b.userEmail).toLowerCase();
-        return (String(b.name||'').toLowerCase().includes(term)
-          || String(b.category||'').toLowerCase().includes(term)
-          || String(b.description||'').toLowerCase().includes(term)
-          || author.includes(term));
-      });
-    }
-    if (sortKey === 'latest') {
-      list = list.sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
-    } else if (sortKey === 'oldest') {
-      list = list.sort((a,b) => (a.createdAt||0) - (b.createdAt||0));
-    } else if (sortKey === 'likes') {
-      list = list.sort((a,b) => (b.likes||0) - (a.likes||0));
-    } else if (sortKey === 'comments') {
-      const cl = x => Array.isArray(x.comments) ? x.comments.length : 0;
-      list = list.sort((a,b) => cl(b) - cl(a));
-    }
-    if (!list.length) { exploreList.innerHTML = `<article class="card"><strong>No blogs found</strong></article>`; return; }
-    exploreList.innerHTML = list.map(b => { const liked = Array.isArray(b.likedBy) && b.likedBy.some(e => String(e).toLowerCase() === String(cu.email).toLowerCase()); return `
+    const exploreList = qs('#exploreList');
+    const renderFeed = (q = '', cat = '', sortKey = 'latest') => {
+      const all = getBlogs();
+      const term = (q || '').toLowerCase();
+      const catTerm = (cat || '').toLowerCase();
+      let list = all;
+      if (catTerm && catTerm !== 'all') {
+        list = list.filter(b => String(b.category || '').toLowerCase() === catTerm);
+      }
+      if (term) {
+        list = list.filter(b => {
+          const author = nameByEmail(b.userEmail).toLowerCase();
+          return (String(b.name || '').toLowerCase().includes(term)
+            || String(b.category || '').toLowerCase().includes(term)
+            || String(b.description || '').toLowerCase().includes(term)
+            || author.includes(term));
+        });
+      }
+      if (sortKey === 'latest') {
+        list = list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      } else if (sortKey === 'oldest') {
+        list = list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      } else if (sortKey === 'likes') {
+        list = list.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      } else if (sortKey === 'comments') {
+        const cl = x => Array.isArray(x.comments) ? x.comments.length : 0;
+        list = list.sort((a, b) => cl(b) - cl(a));
+      }
+      if (!list.length) { exploreList.innerHTML = `<article class="card"><strong>No blogs found</strong></article>`; return; }
+      exploreList.innerHTML = list.map(b => {
+        const liked = Array.isArray(b.likedBy) && b.likedBy.some(e => String(e).toLowerCase() === String(cu.email).toLowerCase()); return `
       <article class="card" data-id="${b.id}">
         <div style="display:grid; gap:10px;">
           <div class="feed-head">
             <div class="feed-left">
-              ${(() => { const users = getUsers(); const u = users.find(x => String(x.email).toLowerCase() === String(b.userEmail).toLowerCase()); const avatar = u && u.avatar; const ok = avatar && /^https?:\/\//i.test(avatar); const nm = nameByEmail(b.userEmail); const init = (nm||'').charAt(0).toUpperCase(); return ok ? `<div class="feed-avatar"><img src="${avatar}" alt="${nm}" /></div>` : `<div class="feed-avatar"><span>${init || '?'}</span></div>`; })()}
+              ${(() => { const users = getUsers(); const u = users.find(x => String(x.email).toLowerCase() === String(b.userEmail).toLowerCase()); const avatar = u && u.avatar; const ok = avatar && /^https?:\/\//i.test(avatar); const nm = nameByEmail(b.userEmail); const init = (nm || '').charAt(0).toUpperCase(); return ok ? `<div class="feed-avatar"><img src="${avatar}" alt="${nm}" /></div>` : `<div class="feed-avatar"><span>${init || '?'}</span></div>`; })()}
               <div class="feed-meta">
                 <div class="feed-user">${nameByEmail(b.userEmail)}</div>
                 <div class="feed-category"><div class="pill">${b.category}</div></div>
@@ -148,7 +258,7 @@
           <p style="color:var(--muted);">${b.description}</p>
           <div class="actions" style="justify-content:flex-start;">
             <button class="btn small like-btn${liked ? ' liked' : ''}" data-id="${b.id}" data-liked="${liked ? 'true' : 'false'}">${liked ? '❤️ Liked' : '❤️ Like'} (<span class="like-count" data-id="${b.id}">${b.likes || 0}</span>)</button>
-            ${Array.isArray(b.comments) && b.comments.length ? `<button class="btn small ghost toggle-comments-btn" data-id="${b.id}" data-state="hidden" data-count="${Array.isArray(b.comments)?b.comments.length:0}">Show Comments (${Array.isArray(b.comments)?b.comments.length:0})</button>` : ''}
+            ${Array.isArray(b.comments) && b.comments.length ? `<button class="btn small ghost toggle-comments-btn" data-id="${b.id}" data-state="hidden" data-count="${Array.isArray(b.comments) ? b.comments.length : 0}">Show Comments (${Array.isArray(b.comments) ? b.comments.length : 0})</button>` : ''}
           </div>
           <div class="comments" style="display:grid; gap:8px;">
             <div class="comment-items" id="comments-${b.id}" ${Array.isArray(b.comments) && b.comments.length ? 'style="display:none;"' : ''}>
@@ -165,87 +275,89 @@
           </div>
         </div>
       </article>
-    `; }).join('');
-    qsa('.like-btn').forEach(el => el.addEventListener('click', (e) => {
-      const id = e.currentTarget.getAttribute('data-id');
-      const arr = getBlogs();
-      const idx = arr.findIndex(x => String(x.id) === String(id));
-      if (idx < 0) return;
-      const me = String(cu.email).toLowerCase();
-      const likedBy = Array.isArray(arr[idx].likedBy) ? arr[idx].likedBy : [];
-      const already = likedBy.some(x => String(x).toLowerCase() === me);
-      let likes = arr[idx].likes || 0;
-      const btn = e.currentTarget;
-      if (already) {
-        arr[idx].likedBy = likedBy.filter(x => String(x).toLowerCase() !== me);
-        likes = Math.max(0, likes - 1);
-        arr[idx].likes = likes;
+    `;
+      }).join('');
+      qsa('.like-btn').forEach(el => el.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const arr = getBlogs();
+        const idx = arr.findIndex(x => String(x.id) === String(id));
+        if (idx < 0) return;
+        const me = String(cu.email).toLowerCase();
+        const likedBy = Array.isArray(arr[idx].likedBy) ? arr[idx].likedBy : [];
+        const already = likedBy.some(x => String(x).toLowerCase() === me);
+        let likes = arr[idx].likes || 0;
+        const btn = e.currentTarget;
+        if (already) {
+          arr[idx].likedBy = likedBy.filter(x => String(x).toLowerCase() !== me);
+          likes = Math.max(0, likes - 1);
+          arr[idx].likes = likes;
+          setBlogs(arr);
+          const lc = qs(`.like-count[data-id="${id}"]`);
+          if (lc) lc.textContent = String(likes);
+          btn.setAttribute('data-liked', 'false');
+          btn.classList.remove('liked');
+          btn.firstChild && (btn.firstChild.textContent = '❤️ Like ');
+        } else {
+          likedBy.push(cu.email);
+          arr[idx].likedBy = likedBy;
+          likes = likes + 1;
+          arr[idx].likes = likes;
+          setBlogs(arr);
+          const lc = qs(`.like-count[data-id="${id}"]`);
+          if (lc) lc.textContent = String(likes);
+          btn.setAttribute('data-liked', 'true');
+          btn.classList.add('liked');
+          btn.firstChild && (btn.firstChild.textContent = '❤️ Liked ');
+        }
+      }));
+      qsa('.comment-btn').forEach(el => el.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const input = qs(`.comment-input[data-id="${id}"]`);
+        const text = input && input.value.trim();
+        if (!text) { showToast('Write a comment'); return; }
+        const arr = getBlogs();
+        const idx = arr.findIndex(x => String(x.id) === String(id));
+        if (idx < 0) return;
+        const comment = { id: Date.now(), userEmail: cu.email, text, createdAt: Date.now() };
+        const list = Array.isArray(arr[idx].comments) ? arr[idx].comments : [];
+        list.push(comment);
+        arr[idx].comments = list;
         setBlogs(arr);
-        const lc = qs(`.like-count[data-id="${id}"]`);
-        if (lc) lc.textContent = String(likes);
-        btn.setAttribute('data-liked','false');
-        btn.classList.remove('liked');
-        btn.firstChild && (btn.firstChild.textContent = '❤️ Like ');
-      } else {
-        likedBy.push(cu.email);
-        arr[idx].likedBy = likedBy;
-        likes = likes + 1;
-        arr[idx].likes = likes;
-        setBlogs(arr);
-        const lc = qs(`.like-count[data-id="${id}"]`);
-        if (lc) lc.textContent = String(likes);
-        btn.setAttribute('data-liked','true');
-        btn.classList.add('liked');
-        btn.firstChild && (btn.firstChild.textContent = '❤️ Liked ');
-      }
-    }));
-    qsa('.comment-btn').forEach(el => el.addEventListener('click', (e) => {
-      const id = e.currentTarget.getAttribute('data-id');
-      const input = qs(`.comment-input[data-id="${id}"]`);
-      const text = input && input.value.trim();
-      if (!text) { showToast('Write a comment'); return; }
-      const arr = getBlogs();
-      const idx = arr.findIndex(x => String(x.id) === String(id));
-      if (idx < 0) return;
-      const comment = { id: Date.now(), userEmail: cu.email, text, createdAt: Date.now() };
-      const list = Array.isArray(arr[idx].comments) ? arr[idx].comments : [];
-      list.push(comment);
-      arr[idx].comments = list;
-      setBlogs(arr);
-      if (input) input.value = '';
-      const box = qs(`#comments-${id}`);
-      if (box) box.innerHTML = list.map(c => `
+        if (input) input.value = '';
+        const box = qs(`#comments-${id}`);
+        if (box) box.innerHTML = list.map(c => `
         <div class="card" style="padding:10px;">
           <div style="font-weight:600; font-size:13px;">${nameByEmail(c.userEmail)}</div>
           <div style="font-size:14px; color:var(--text);">${c.text}</div>
         </div>`).join('');
-      if (typeof run === 'function') run();
-    }));
-    qsa('.toggle-comments-btn').forEach(el => el.addEventListener('click', (e) => {
-      const id = e.currentTarget.getAttribute('data-id');
-      const box = qs(`#comments-${id}`);
-      if (!box) return;
-      const state = e.currentTarget.getAttribute('data-state') || 'hidden';
-      const count = e.currentTarget.getAttribute('data-count') || '';
-      if (state === 'hidden') {
-        box.style.display = '';
-        e.currentTarget.setAttribute('data-state', 'shown');
-        e.currentTarget.textContent = 'Hide Comments';
-      } else {
-        box.style.display = 'none';
-        e.currentTarget.setAttribute('data-state', 'hidden');
-        e.currentTarget.textContent = `Show Comments${count ? ' (' + count + ')' : ''}`;
-      }
-    }));
-  };
-  const searchInput = qs('#exploreSearch');
-  const catSelect = qs('#exploreCategory');
-  const sortSelect = qs('#exploreSort');
-  const run = () => { const q = searchInput ? searchInput.value.trim() : ''; const cat = catSelect ? catSelect.value.trim() : ''; const sortKey = sortSelect ? sortSelect.value.trim() : 'latest'; renderFeed(q, cat, sortKey); };
-  if (searchInput) searchInput.addEventListener('input', run);
-  if (catSelect) catSelect.addEventListener('change', run);
-  if (sortSelect) sortSelect.addEventListener('change', run);
-  renderFeed('', 'all', 'latest');
+        if (typeof run === 'function') run();
+      }));
+      qsa('.toggle-comments-btn').forEach(el => el.addEventListener('click', (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const box = qs(`#comments-${id}`);
+        if (!box) return;
+        const state = e.currentTarget.getAttribute('data-state') || 'hidden';
+        const count = e.currentTarget.getAttribute('data-count') || '';
+        if (state === 'hidden') {
+          box.style.display = '';
+          e.currentTarget.setAttribute('data-state', 'shown');
+          e.currentTarget.textContent = 'Hide Comments';
+        } else {
+          box.style.display = 'none';
+          e.currentTarget.setAttribute('data-state', 'hidden');
+          e.currentTarget.textContent = `Show Comments${count ? ' (' + count + ')' : ''}`;
+        }
+      }));
+    };
+    const searchInput = qs('#exploreSearch');
+    const catSelect = qs('#exploreCategory');
+    const sortSelect = qs('#exploreSort');
+    const run = () => { const q = searchInput ? searchInput.value.trim() : ''; const cat = catSelect ? catSelect.value.trim() : ''; const sortKey = sortSelect ? sortSelect.value.trim() : 'latest'; renderFeed(q, cat, sortKey); };
+    if (searchInput) searchInput.addEventListener('input', run);
+    if (catSelect) catSelect.addEventListener('change', run);
+    if (sortSelect) sortSelect.addEventListener('change', run);
+    renderFeed('', 'all', 'latest');
   </script>
 </body>
+
 </html>

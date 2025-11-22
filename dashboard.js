@@ -3,6 +3,7 @@ const qsa = s => Array.from(document.querySelectorAll(s));
 
 const toast = qs('#toast');
 const menuToggle = qs('#menuToggle');
+const sidebarOverlay = qs('#sidebarOverlay');
 const sides = qsa('.side-item');
 const views = {
   overview: qs('#view-overview'),
@@ -10,6 +11,19 @@ const views = {
   create: qs('#view-create'),
   settings: qs('#view-settings')
 };
+
+function initViewFromHash() {
+  const h = (window.location.hash || '').replace('#','');
+  const v = views[h];
+  if (!v) return;
+  Object.values(views).forEach(x => x.classList.remove('active'));
+  v.classList.add('active');
+  sides.forEach(b => b.classList.remove('active'));
+  const tab = sides.find(b => b.dataset.view === h);
+  if (tab) tab.classList.add('active');
+  if (h === 'blogs') renderBlogs();
+  if (h === 'overview') { computeStats(); updateChart(); }
+}
 
 const showToast = (msg) => { if (!toast) return; toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1400); };
 
@@ -32,6 +46,8 @@ function computeStats() {
   if (sc) sc.textContent = String(comments);
 }
 
+const formatDT = (ts) => { if (!ts) return ''; try { return new Date(ts).toLocaleDateString(); } catch { return ''; } };
+
 const setFilled = el => { const f = el && el.closest('.field'); if (!f) return; const v = (el.tagName === 'SELECT') ? el.value : (el.value || '').trim(); if (v) f.classList.add('filled'); else f.classList.remove('filled'); };
 qsa('.field input, .field textarea, .field select').forEach(el => { setFilled(el); ['input','change','blur'].forEach(ev => el.addEventListener(ev, () => setFilled(el))); });
 
@@ -43,12 +59,14 @@ sides.forEach(btn => {
     const key = btn.dataset.view;
     const v = views[key];
     if (key === 'explore') { window.location.href = 'exploreBlogs.html'; return; }
+    if (key === 'create') { window.location.hash = 'create'; window.location.reload(); return; }
     if (v) v.classList.add('active');
     if (key === 'blogs') renderBlogs();
     if (key === 'overview') { computeStats(); updateChart(); }
     if (document.body.clientWidth <= 992) {
       const sidebar = qs('.sidebar');
       if (sidebar) sidebar.classList.remove('open');
+      if (sidebarOverlay) sidebarOverlay.classList.remove('show');
     }
   });
 });
@@ -101,7 +119,8 @@ const renderBlogs = () => {
     <article class="card list-item">
       <div>
         <div><strong>${b.name}</strong></div>
-        <div class="list-meta">Category: <span class="pill">${b.category}</span></div>
+        <div class="list-meta list-meta-row"><span class="pill">${b.category}</span><span class="meta-item">${formatDT(b.createdAt)}</span></div>
+        <div class="list-meta list-meta-row"><span class="meta-item">Likes: ${b.likes || 0}</span><span class="meta-item">Comments: ${Array.isArray(b.comments) ? b.comments.length : 0}</span></div>
       </div>
       <div class="actions">
         <button class="btn small edit" data-id="${b.id}">Edit</button>
@@ -228,6 +247,15 @@ if (menuToggle) {
   menuToggle.addEventListener('click', () => {
     const sidebar = qs('.sidebar');
     if (sidebar) sidebar.classList.toggle('open');
+    if (document.body.clientWidth <= 992 && sidebarOverlay) sidebarOverlay.classList.toggle('show');
+  });
+}
+
+if (sidebarOverlay) {
+  sidebarOverlay.addEventListener('click', () => {
+    const sidebar = qs('.sidebar');
+    if (sidebar) sidebar.classList.remove('open');
+    sidebarOverlay.classList.remove('show');
   });
 }
 
@@ -272,6 +300,7 @@ const initCurrent = () => {
 initCurrent();
 computeStats();
 updateChart();
+initViewFromHash();
 
 if (saveSettingsBtn) {
   saveSettingsBtn.addEventListener('click', () => {
