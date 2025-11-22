@@ -302,3 +302,12 @@ if (saveSettingsBtn) {
 const applyTheme = (t) => { document.documentElement.setAttribute('data-theme', t); const btn = qs('#themeToggle'); if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙'; localStorage.setItem('theme', t); };
 const initTheme = () => { const t = localStorage.getItem('theme') || 'dark'; applyTheme(t); const btn = qs('#themeToggle'); if (btn) btn.addEventListener('click', () => { const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; applyTheme(next); }); };
 initTheme();
+
+const logoutBtn = qs('#logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { localStorage.removeItem('currentUser'); } catch {}
+    window.location.href = 'login.html';
+  });
+}
