@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Explore Blogs • BlogSyte</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css" />
+  <style>
+    #view-explore .grid.list { grid-template-columns: 1fr; max-width: 840px; margin: 0 auto; padding: 0 20px; }
+    .search-wrap { max-width: 840px; margin: 70px auto 16px; padding: 0 20px; }
+    .search-input { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: var(--text); font-size: 14px; }
+    .nav-center { position: absolute; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .nav-title { font-weight: 800; letter-spacing: -0.2px; }
+  </style>
+</head>
+<body>
+  <header class="dash-nav">
+    <div class="nav-left">
+      <a href="#" class="logo">BlogSyte</a>
+    </div>
+    <div class="nav-center"><div class="nav-title">Explore Blogs</div></div>
+    <div class="nav-right">
+      <div class="greet">Hi, <span id="navUserExplore">User</span></div>
+      <a class="btn ghost" href="dashboard.html">Dashboard</a>
+    </div>
+  </header>
+
+  <main class="main" style="margin-top:58px;">
+    <div class="search-wrap">
+      <input type="text" id="exploreSearch" class="search-input" placeholder="Search blogs by title, category, author, description" />
+    </div>
+    <section class="view active" id="view-explore">
+      <div class="grid list" id="exploreList"></div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+  const qs = s => document.querySelector(s);
+  const qsa = s => Array.from(document.querySelectorAll(s));
+  const showToast = (msg) => { const t = qs('#toast'); if (!t) return; t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1400); };
+  function getUsers() { try { return JSON.parse(localStorage.getItem('users') || '[]'); } catch { return []; } }
+  function getCurrentUser() { try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch { return null; } }
+  function setCurrentUser(cu) { localStorage.setItem('currentUser', JSON.stringify(cu)); }
+  function getBlogs() { try { return JSON.parse(localStorage.getItem('blogs') || '[]'); } catch { return []; } }
+  function setBlogs(arr) { localStorage.setItem('blogs', JSON.stringify(arr)); }
+
+  const navUserExplore = qs('#navUserExplore');
+  const cu = getCurrentUser();
+  if (!cu || !cu.email) { window.location.href = 'login.html'; }
+  if (navUserExplore) navUserExplore.textContent = (cu && (cu.username || cu.name)) || 'User';
+
+  const nameByEmail = (email) => {
+    const users = getUsers();
+    const u = users.find(x => String(x.email).toLowerCase() === String(email).toLowerCase());
+    return (u && (u.username || u.name)) || email;
+  };
+
+  const exploreList = qs('#exploreList');
+  const renderFeed = (q = '') => {
+    let arr = getBlogs().sort((a,b) => (b.createdAt||0) - (a.createdAt||0));
+    const term = (q || '').toLowerCase();
+    if (term) {
+      arr = arr.filter(b => {
+        const author = nameByEmail(b.userEmail).toLowerCase();
+        return (String(b.name||'').toLowerCase().includes(term)
+          || String(b.category||'').toLowerCase().includes(term)
+          || String(b.description||'').toLowerCase().includes(term)
+          || author.includes(term));
+      });
+    }
+    if (!arr.length) { exploreList.innerHTML = `<article class="card"><strong>No blogs yet</strong></article>`; return; }
+    exploreList.innerHTML = arr.map(b => `
+      <article class="card" data-id="${b.id}">
+        <div style="display:grid; gap:10px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="pill">${b.category}</div>
+            <div style="color:var(--muted); font-size:13px;">by ${nameByEmail(b.userEmail)}</div>
+          </div>
+          <h3 style="margin:6px 0;">${b.name}</h3>
+          <div class="preview-image" style="min-height:220px; background-image: ${b.image && /^https?:\/\//i.test(b.image) ? 'url("' + b.image + '")' : ''};"></div>
+          <p style="color:var(--muted);">${b.description}</p>
+          <div class="actions" style="justify-content:flex-start;">
+            <button class="btn small like-btn" data-id="${b.id}">❤️ Like (<span class="like-count" data-id="${b.id}">${b.likes || 0}</span>)</button>
+          </div>
+          <div class="comments" style="display:grid; gap:8px;">
+            <div class="comment-items" id="comments-${b.id}">
+              ${Array.isArray(b.comments) && b.comments.length ? b.comments.map(c => `
+                <div class="card" style="padding:10px;">
+                  <div style="font-weight:600; font-size:13px;">${nameByEmail(c.userEmail)}</div>
+                  <div style="font-size:14px; color:var(--text);">${c.text}</div>
+                </div>`).join('') : '<div class="list-meta">No comments yet</div>'}
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="text" class="comment-input" data-id="${b.id}" placeholder="Write a comment" style="flex:1; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: var(--text);" />
+              <button class="btn small comment-btn" data-id="${b.id}">Comment</button>
+            </div>
+          </div>
+        </div>
+      </article>
+    `).join('');
+    qsa('.like-btn').forEach(el => el.addEventListener('click', (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      const arr = getBlogs();
+      const idx = arr.findIndex(x => String(x.id) === String(id));
+      if (idx < 0) return;
+      const likes = (arr[idx].likes || 0) + 1;
+      arr[idx].likes = likes;
+      setBlogs(arr);
+      const lc = qs(`.like-count[data-id="${id}"]`);
+      if (lc) lc.textContent = String(likes);
+    }));
+    qsa('.comment-btn').forEach(el => el.addEventListener('click', (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      const input = qs(`.comment-input[data-id="${id}"]`);
+      const text = input && input.value.trim();
+      if (!text) { showToast('Write a comment'); return; }
+      const arr = getBlogs();
+      const idx = arr.findIndex(x => String(x.id) === String(id));
+      if (idx < 0) return;
+      const comment = { id: Date.now(), userEmail: cu.email, text, createdAt: Date.now() };
+      const list = Array.isArray(arr[idx].comments) ? arr[idx].comments : [];
+      list.push(comment);
+      arr[idx].comments = list;
+      setBlogs(arr);
+      if (input) input.value = '';
+      const box = qs(`#comments-${id}`);
+      if (box) box.innerHTML = list.map(c => `
+        <div class="card" style="padding:10px;">
+          <div style="font-weight:600; font-size:13px;">${nameByEmail(c.userEmail)}</div>
+          <div style="font-size:14px; color:var(--text);">${c.text}</div>
+        </div>`).join('');
+    }));
+  };
+  const searchInput = qs('#exploreSearch');
+  if (searchInput) searchInput.addEventListener('input', () => { renderFeed(searchInput.value.trim()); });
+  renderFeed();
+  </script>
+</body>
+</html>

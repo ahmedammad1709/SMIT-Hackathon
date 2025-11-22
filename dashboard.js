@@ -13,6 +13,11 @@ const views = {
 
 const showToast = (msg) => { if (!toast) return; toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1400); };
 
+function getUsers() { try { return JSON.parse(localStorage.getItem('users') || '[]'); } catch { return []; } }
+function setUsersLS(users) { localStorage.setItem('users', JSON.stringify(users)); }
+function getCurrentUser() { try { return JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch { return null; } }
+function setCurrentUser(cu) { localStorage.setItem('currentUser', JSON.stringify(cu)); }
+
 const setFilled = el => { const f = el && el.closest('.field'); if (!f) return; const v = (el.tagName === 'SELECT') ? el.value : (el.value || '').trim(); if (v) f.classList.add('filled'); else f.classList.remove('filled'); };
 qsa('.field input, .field textarea, .field select').forEach(el => { setFilled(el); ['input','change','blur'].forEach(ev => el.addEventListener(ev, () => setFilled(el))); });
 
@@ -21,8 +26,11 @@ sides.forEach(btn => {
     sides.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     Object.values(views).forEach(v => v.classList.remove('active'));
-    const v = views[btn.dataset.view];
+    const key = btn.dataset.view;
+    const v = views[key];
+    if (key === 'explore') { window.location.href = 'exploreBlogs.html'; return; }
     if (v) v.classList.add('active');
+    if (key === 'blogs') renderBlogs();
     if (document.body.clientWidth <= 992) {
       const sidebar = qs('.sidebar');
       if (sidebar) sidebar.classList.remove('open');
@@ -35,30 +43,58 @@ const dummy = [16, 28, 12, 30, 22, 40, 26];
 bars.forEach((bar, i) => { const h = dummy[i % dummy.length]; requestAnimationFrame(() => { bar.style.height = h * 3 + 'px'; }); });
 
 const blogsList = qs('#blogsList');
-const blogs = [
-  { title: 'Mastering Async JS', cat: 'Technology' },
-  { title: 'AI in 2025', cat: 'Science' },
-  { title: 'Top 10 Indie Movies', cat: 'Movies' },
-  { title: 'Weekend Football Recap', cat: 'Sports' },
-  { title: 'Life Minimalism', cat: 'Lifestyle' },
-  { title: 'Hidden Gems in Kyoto', cat: 'Travel' }
-];
-if (blogsList) {
-  blogsList.innerHTML = blogs.map(b => `
+const getBlogs = () => { try { return JSON.parse(localStorage.getItem('blogs') || '[]'); } catch { return []; } };
+const setBlogs = (arr) => { localStorage.setItem('blogs', JSON.stringify(arr)); };
+let editingId = null;
+const renderBlogs = () => {
+  if (!blogsList) return;
+  const cu = getCurrentUser();
+  const all = getBlogs();
+  const my = cu && cu.email ? all.filter(b => String(b.userEmail).toLowerCase() === String(cu.email).toLowerCase()) : all;
+  if (!my.length) {
+    blogsList.innerHTML = `<article class="card list-item"><div><strong>No blogs yet</strong></div><div class="list-meta">Create one in the Create Post tab</div></article>`;
+    return;
+  }
+  blogsList.innerHTML = my.map(b => `
     <article class="card list-item">
       <div>
-        <div><strong>${b.title}</strong></div>
-        <div class="list-meta">Category: <span class="pill">${b.cat}</span></div>
+        <div><strong>${b.name}</strong></div>
+        <div class="list-meta">Category: <span class="pill">${b.category}</span></div>
       </div>
       <div class="actions">
-        <button class="btn small edit">Edit</button>
-        <button class="btn small delete">Delete</button>
+        <button class="btn small edit" data-id="${b.id}">Edit</button>
+        <button class="btn small delete" data-id="${b.id}">Delete</button>
       </div>
     </article>
   `).join('');
-  qsa('.btn.edit').forEach(el => el.addEventListener('click', () => showToast('Edit clicked')));
-  qsa('.btn.delete').forEach(el => el.addEventListener('click', () => showToast('Delete clicked')));
-}
+  qsa('.btn.edit').forEach(el => el.addEventListener('click', (e) => {
+    const id = e.currentTarget.getAttribute('data-id');
+    const allBlogs = getBlogs();
+    const b = allBlogs.find(x => String(x.id) === String(id));
+    if (!b) return;
+    editingId = b.id;
+    if (blogName) blogName.value = b.name || '';
+    if (category) category.value = b.category || '';
+    if (imageUrl) imageUrl.value = b.image || '';
+    if (description) description.value = b.description || '';
+    [blogName, category, imageUrl, description].forEach(el2 => el2 && el2.dispatchEvent(new Event('input')));
+    Object.values(views).forEach(v => v.classList.remove('active'));
+    const v = views['create']; if (v) v.classList.add('active');
+    sides.forEach(btn => btn.classList.remove('active'));
+    const tab = sides.find(btn => btn.dataset.view === 'create'); if (tab) tab.classList.add('active');
+    if (createBtn) createBtn.textContent = 'Update Post';
+  }));
+  qsa('.btn.delete').forEach(el => el.addEventListener('click', (e) => {
+    const id = e.currentTarget.getAttribute('data-id');
+    const ok = window.confirm('Delete this blog?');
+    if (!ok) return;
+    const arr = getBlogs().filter(b => String(b.id) !== String(id));
+    setBlogs(arr);
+    renderBlogs();
+    showToast('Deleted');
+  }));
+};
+renderBlogs();
 
 const blogName = qs('#blogName');
 const category = qs('#category');
@@ -80,6 +116,7 @@ const setPreview = () => {
 };
 [blogName, description, imageUrl].forEach(el => el && el.addEventListener('input', setPreview));
 
+const isValidUrl = (u) => /^https?:\/\//i.test(u);
 if (createBtn) {
   createBtn.addEventListener('click', (e) => {
     const rect = createBtn.getBoundingClientRect();
@@ -91,7 +128,51 @@ if (createBtn) {
     ripple.style.setProperty('--y', y + 'px');
     createBtn.appendChild(ripple);
     setTimeout(() => ripple.remove(), 600);
-    showToast('UI only: post created preview');
+
+    const cu = getCurrentUser();
+    if (!cu || !cu.email) { window.location.href = 'login.html'; return; }
+    const name = blogName && blogName.value.trim();
+    const cat = category && category.value.trim();
+    const img = imageUrl && imageUrl.value.trim();
+    const desc = description && description.value.trim();
+    if (!name || !cat || !img || !desc) { showToast('Please fill all fields'); return; }
+    if (!isValidUrl(img)) { showToast('Invalid image URL'); return; }
+    const arr = getBlogs();
+    if (editingId) {
+      const idx = arr.findIndex(b => String(b.id) === String(editingId));
+      if (idx >= 0) {
+        arr[idx] = { ...arr[idx], name, category: cat, image: img, description: desc };
+        setBlogs(arr);
+        editingId = null;
+        if (createBtn) createBtn.textContent = 'Create Post';
+        if (blogName) blogName.value = '';
+        if (category) category.value = '';
+        if (imageUrl) imageUrl.value = '';
+        if (description) description.value = '';
+        [blogName, category, imageUrl, description].forEach(el => el && el.dispatchEvent(new Event('input')));
+        showToast('Blog updated');
+        Object.values(views).forEach(v => v.classList.remove('active'));
+        const v2 = views['blogs']; if (v2) v2.classList.add('active');
+        sides.forEach(b => b.classList.remove('active'));
+        const tab = sides.find(b => b.dataset.view === 'blogs'); if (tab) tab.classList.add('active');
+        renderBlogs();
+        return;
+      }
+    }
+    const newBlog = { id: Date.now(), userEmail: cu.email, name, category: cat, image: img, description: desc, likes: 0, comments: [], createdAt: Date.now() };
+    arr.push(newBlog);
+    setBlogs(arr);
+    if (blogName) blogName.value = '';
+    if (category) category.value = '';
+    if (imageUrl) imageUrl.value = '';
+    if (description) description.value = '';
+    [blogName, category, imageUrl, description].forEach(el => el && el.dispatchEvent(new Event('input')));
+    showToast('Blog created');
+    Object.values(views).forEach(v => v.classList.remove('active'));
+    const v = views['blogs']; if (v) v.classList.add('active');
+    sides.forEach(b => b.classList.remove('active'));
+    const tab = sides.find(b => b.dataset.view === 'blogs'); if (tab) tab.classList.add('active');
+    renderBlogs();
   });
 }
 
@@ -107,6 +188,63 @@ const navUser = qs('#navUser');
 const avatarInput = qs('#setAvatar');
 const avatarPreview = qs('#avatarPreview');
 const profileName = qs('#profileName');
+const setFullName = qs('#setFullName');
+const setEmail = qs('#setEmail');
+const setBio = qs('#setBio');
+const saveSettingsBtn = qs('#saveSettingsBtn');
+
+let cuBoot = null; try { cuBoot = JSON.parse(localStorage.getItem('currentUser') || 'null'); } catch {}
+if (cuBoot) {
+  if (navUser) navUser.textContent = cuBoot.username || cuBoot.name || 'User';
+  if (setUsername) setUsername.value = cuBoot.username || '';
+  if (setFullName) setFullName.value = cuBoot.name || '';
+  if (setEmail) setEmail.value = cuBoot.email || '';
+  if (profileName) profileName.textContent = cuBoot.username || 'User';
+}
 
 if (setUsername) setUsername.addEventListener('input', () => { const v = setUsername.value.trim(); if (navUser) navUser.textContent = v || 'User'; if (profileName) profileName.textContent = v || 'User'; });
 if (avatarInput) avatarInput.addEventListener('input', () => { const url = avatarInput.value.trim(); if (url && /^https?:\/\//i.test(url)) avatarPreview.style.backgroundImage = `url('${url}')`; else avatarPreview.style.backgroundImage = ''; });
+
+
+const initCurrent = () => {
+  const cu = getCurrentUser();
+  if (!cu) { window.location.href = 'login.html'; return; }
+  const users = getUsers();
+  const full = users.find(u => String(u.email).toLowerCase() === String(cu.email).toLowerCase()) || cu;
+  if (navUser) navUser.textContent = full.username || full.name || 'User';
+  if (setUsername) setUsername.value = full.username || '';
+  if (setFullName) setFullName.value = full.name || '';
+  if (setEmail) setEmail.value = full.email || '';
+  if (setBio) setBio.value = full.bio || '';
+  if (profileName) profileName.textContent = full.username || 'User';
+  const a = full.avatar || '';
+  if (avatarPreview) { if (a && /^https?:\/\//i.test(a)) avatarPreview.style.backgroundImage = `url('${a}')`; else avatarPreview.style.backgroundImage = ''; }
+  [setUsername, setFullName, setEmail, setBio].forEach(el => el && el.dispatchEvent(new Event('input')));
+};
+initCurrent();
+
+if (saveSettingsBtn) {
+  saveSettingsBtn.addEventListener('click', () => {
+    const username = setUsername && setUsername.value.trim() || '';
+    const name = setFullName && setFullName.value.trim() || '';
+    const email = setEmail && setEmail.value.trim() || '';
+    const avatar = avatarInput && avatarInput.value.trim() || '';
+    const bio = setBio && setBio.value.trim() || '';
+    const cu = getCurrentUser();
+    const users = getUsers();
+    const oldEmail = cu && cu.email ? String(cu.email).toLowerCase() : '';
+    const idx = users.findIndex(u => String(u.email).toLowerCase() === oldEmail);
+    if (idx >= 0) {
+      users[idx] = { ...users[idx], username, name, email, avatar, bio };
+    } else if (email) {
+      users.push({ username, name, email, password: '', avatar, bio });
+    }
+    setUsersLS(users);
+    const newCu = { username, name, email, avatar, bio };
+    setCurrentUser(newCu);
+    if (navUser) navUser.textContent = username || name || 'User';
+    if (profileName) profileName.textContent = username || 'User';
+    if (avatarPreview) { if (avatar && /^https?:\/\//i.test(avatar)) avatarPreview.style.backgroundImage = `url('${avatar}')`; else avatarPreview.style.backgroundImage = ''; }
+    showToast('Saved');
+  });
+}
