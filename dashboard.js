@@ -71,6 +71,17 @@ sides.forEach(btn => {
   });
 });
 
+const newBlogBtn = qs('#newBlogBtn');
+if (newBlogBtn) {
+  newBlogBtn.addEventListener('click', () => {
+    Object.values(views).forEach(v => v.classList.remove('active'));
+    const v = views['create']; if (v) v.classList.add('active');
+    sides.forEach(btn => btn.classList.remove('active'));
+    const tab = sides.find(btn => btn.dataset.view === 'create'); if (tab) tab.classList.add('active');
+    window.location.hash = 'create';
+  });
+}
+
 const barsWrap = qs('.bars');
 const labelsWrap = qs('.bar-labels');
 function updateChart() {
@@ -194,6 +205,9 @@ if (createBtn) {
     createBtn.appendChild(ripple);
     setTimeout(() => ripple.remove(), 600);
 
+    const ax = rect.left + x;
+    const ay = rect.top + y;
+
     const cu = getCurrentUser();
     if (!cu || !cu.email) { window.location.href = 'login.html'; return; }
     const name = blogName && blogName.value.trim();
@@ -235,6 +249,32 @@ if (createBtn) {
     if (description) description.value = '';
     [blogName, category, imageUrl, description].forEach(el => el && el.dispatchEvent(new Event('input')));
     showToast('Blog created');
+
+    const root = getComputedStyle(document.documentElement);
+    const c1 = (root.getPropertyValue('--primary') || '#7c3aed').trim();
+    const c2 = (root.getPropertyValue('--secondary') || '#ec4899').trim();
+    const c3 = '#cfc7ff';
+    const c4 = '#ffd1ec';
+    const c5 = '#c7f5ff';
+    const colors = [c1, c2, c3, c4, c5];
+    Array.from({ length: 32 }, () => 0).forEach(() => {
+      const el = document.createElement('span');
+      el.className = 'sprinkle';
+      const ang = Math.random() * Math.PI * 2;
+      const dist = 40 + Math.random() * 90;
+      const dx = Math.round(Math.cos(ang) * dist);
+      const dy = Math.round(Math.sin(ang) * dist);
+      const size = 4 + Math.round(Math.random() * 6);
+      const color = colors[Math.floor(Math.random() * colors.length)] || '#fff';
+      el.style.setProperty('--x', ax + 'px');
+      el.style.setProperty('--y', ay + 'px');
+      el.style.setProperty('--dx', dx + 'px');
+      el.style.setProperty('--dy', dy + 'px');
+      el.style.setProperty('--size', size + 'px');
+      el.style.setProperty('--color', color);
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 900);
+    });
     Object.values(views).forEach(v => v.classList.remove('active'));
     const v = views['blogs']; if (v) v.classList.add('active');
     sides.forEach(b => b.classList.remove('active'));

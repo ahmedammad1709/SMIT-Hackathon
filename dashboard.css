@@ -955,3 +955,25 @@ body {
 .menu-btn {
   display: none;
 }
+
+.sprinkle {
+  position: fixed;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  background: var(--color);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.8);
+  opacity: 0;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+  animation: sprinkleFly 700ms ease-out forwards;
+  z-index: 100;
+}
+
+@keyframes sprinkleFly {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+  80% { opacity: 0.9; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.6); }
+}
