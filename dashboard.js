@@ -79,6 +79,9 @@ if (newBlogBtn) {
     sides.forEach(btn => btn.classList.remove('active'));
     const tab = sides.find(btn => btn.dataset.view === 'create'); if (tab) tab.classList.add('active');
     window.location.hash = 'create';
+    editingId = null;
+    if (createBtn) createBtn.textContent = 'Create Post';
+    if (createTitle) createTitle.textContent = 'Create Post';
   });
 }
 
@@ -156,6 +159,7 @@ const renderBlogs = () => {
     sides.forEach(btn => btn.classList.remove('active'));
     const tab = sides.find(btn => btn.dataset.view === 'create'); if (tab) tab.classList.add('active');
     if (createBtn) createBtn.textContent = 'Update Post';
+    if (createTitle) createTitle.textContent = 'Edit Post';
   }));
   qsa('.btn.delete').forEach(el => el.addEventListener('click', (e) => {
     const id = e.currentTarget.getAttribute('data-id');
@@ -180,6 +184,7 @@ const previewTitle = qs('#previewTitle');
 const previewDesc = qs('#previewDesc');
 const previewImage = qs('#previewImage');
 const createBtn = qs('#createBtn');
+const createTitle = qs('#createTitle');
 
 const setPreview = () => {
   if (previewTitle) previewTitle.textContent = blogName && blogName.value.trim() ? blogName.value.trim() : 'Your post title';
@@ -224,6 +229,7 @@ if (createBtn) {
         setBlogs(arr);
         editingId = null;
         if (createBtn) createBtn.textContent = 'Create Post';
+        if (createTitle) createTitle.textContent = 'Create Post';
         if (blogName) blogName.value = '';
         if (category) category.value = '';
         if (imageUrl) imageUrl.value = '';
